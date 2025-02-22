@@ -1,2 +1,4 @@
+NAME = ""
 SSID = ""
 PW = ""
+EXPORTER_ADDR = ("192.168.0.1", 1234)

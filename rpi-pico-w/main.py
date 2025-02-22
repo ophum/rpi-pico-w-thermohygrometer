@@ -7,6 +7,9 @@ import config
 
 SSID = config.SSID
 PW = config.PW
+EXPORTER_ADDR = config.EXPORTER_ADDR
+NAME = config.NAME
+
 led = Pin("LED", Pin.OUT)
 led.value(0)
 
@@ -29,24 +32,18 @@ print(f"Netmask: {wlan_status[1]}")
 print(f"DefaultGateway: {wlan_status[2]}")
 print(f"Nameserver: {wlan_status[3]}")
 
-addr = socket.getaddrinfo("0.0.0.0", 1234)[0][-1]
-
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind(addr)
-s.listen(1)
-print("listening on", addr)
 
 while True:
     try:
-        conn, addr = s.accept()
-        print("client connected from", addr)
+        s.connect(EXPORTER_ADDR)
+        print("connected")
         led.value(1)
         while True:
             d.measure()
-            conn.send("%s %s\r\n" % (d.temperature(), d.humidity()))
+            s.send("%s %s %s\r\n" % (NAME, d.temperature(), d.humidity()))
             time.sleep(1)
     except OSError as e:
-        conn.close()
+        s.close()
         print("connection closed")
         led.value(0)
